@@ -8,6 +8,35 @@
       margin-top: 2rem;
     }
   }
+
+  /* Quick links styling */
+  .quick-links {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .quick-links li {
+    display: inline;
+  }
+
+  .quick-links a {
+    text-decoration: none;
+    color: var(--color-link, #1a1a1a);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .quick-links a:hover,
+  .quick-links a:focus {
+    background: #f4f4f4;
+    color: var(--color-accent, #0077cc);
+  }
 </style>
 
 <div class="template-404 page-width page-margin center">
@@ -17,7 +46,9 @@
   <h1 class="title">
     {{ 'templates.404.title' | t }}
   </h1>
-  <a href="{{ routes.all_products_collection_url }}" class="button">
-    {{ 'general.continue_shopping' | t }}
-  </a>
+
+  <ul class="quick-links">
+  <li><a href="{{ routes.all_products_collection_url }}">Shop All</a></li>
+  <li><a href="/pages/contact">Contact Us</a></li>
+</ul>
 </div>
