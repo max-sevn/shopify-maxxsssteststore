@@ -1,0 +1,362 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .product {
+    display: flex;
+    padding: 80px 60px;
+    gap: 60px;
+  }
+
+  .product__gallery {
+    display: flex;
+    gap: 24px;
+  }
+
+  .product__gallery-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .product__gallery-wrapper {
+    max-height: 536px;
+  }
+
+  .product__gallery-item,
+  .product__main-variant {
+    width: 88px !important;
+    height: 88px !important;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .product__gallery-item {
+    position: relative;
+  }
+
+  .product__gallery-image,
+  .product__main-variant-image,
+  .product__gallery-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  .product__gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background-color: #111111;
+    opacity: 0;
+  }
+
+  .product__gallery-item.active .product__gallery-overlay {
+    opacity: 20%;
+  }
+
+  .product__gallery-preview {
+    position: relative;
+    width: 536px;
+    height: 536px;
+    border-radius: 8px;
+  }
+
+  .product__gallery-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    border-radius: 4px;
+    background-color: #ffffff;
+  }
+
+  .product__main {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+  }
+
+  .product__main-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .product__main-heading {
+    font-size: 30px;
+    line-height: 36px;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .product__main-price {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: #737373;
+    margin: 0;
+  }
+
+  .product__main-variants {
+    display: flex;
+    gap: 8px;
+  }
+
+  .product__main-variant.active {
+    border: 1px solid #111111;
+  }
+
+  .product__main-size {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .product__main-size-variants {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 8px;
+    grid-row-gap: 8px;
+  }
+
+  .product__main-size-variant {
+    padding: 16px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #ebebeb;
+    background-color: #ffffff;
+  }
+
+  .product__main-size-variant.active {
+    border: 1px solid #111111;
+  }
+
+  .product__main-description {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    color: #737373;
+  }
+
+  @media (min-width: 768px) and (max-width: 1279px) {
+    .product {
+      flex-direction: column;
+      padding: 60px 16px;
+      gap: 24px;
+    }
+    .product__gallery {
+      flex-direction: column-reverse;
+    }
+    .product__gallery-wrapper {
+      margin: 0;
+      max-width: 536px;
+    }
+  }
+
+  .product__button {
+    width: fit-content;
+    padding: 16px 32px;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    border: 0;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .product__button--dark {
+    background-color: #111111;
+    color: #ffffff;
+    transition: 0.2s ease-in-out;
+  }
+
+  .product__button--dark:hover {
+    cursor: pointer;
+    background-color: #737373;
+  }
+
+  @media (max-width: 767px) {
+    .product {
+      flex-direction: column;
+      padding: 60px 16px;
+      gap: 24px;
+    }
+
+    .product__gallery {
+      flex-direction: column-reverse;
+    }
+    .product__gallery-wrapper {
+      margin: 0;
+      max-width: 536px;
+    }
+
+    .product__gallery-preview {
+      width: 343px;
+      height: 343px;
+    }
+
+    .product__main-heading {
+      font-size: 24px;
+      line-height: 32px;
+    }
+
+    .product__main {
+      gap: 24px;
+    }
+
+    .product__main-size-variants {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      grid-column-gap: 8px;
+      grid-row-gap: 8px;
+    }
+  }
+</style>
+
+{% assign current_variant = product.selected_or_first_available_variant %}
+{% assign current_color = product.selected_or_first_available_variant.option1 %}
+
+<div class="product" aria-label="Product details">
+  <div class="product__gallery">
+    <div
+      class="product__gallery-wrapper"
+      role="list"
+      aria-label="Product image gallery"
+    >
+      <div class="product__gallery-list">
+        {% assign matched_gallery = null %}
+        {% for gallery in product.metafields.custom.color_galleries.value %}
+          {% assign gallery_color = gallery.variant_color %}
+          {% if gallery_color == current_color %}
+            {% assign matched_gallery = gallery %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+
+        {% if matched_gallery %}
+          {% for image in matched_gallery.images.value %}
+            <button
+              class="product__gallery-item {% if forloop.first %}active{% endif %}"
+              data-full="{{ image | image_url: width: 536 }}"
+            >
+              <img
+                class="product__gallery-image"
+                src=" {{ image | image_url: width: 88 }}"
+                alt="{{product.title}}"
+                width="88px"
+                height="88px"
+              >
+              <div class="product__gallery-overlay">&nbsp;</div>
+            </button>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+    <div
+      class="product__gallery-preview"
+      role="preview"
+      aria-label="Product image preview"
+    >
+      {% assign images = matched_gallery.images.value %}
+      {% assign first_image = images | first %}
+      <img
+        class="product__gallery-preview-image"
+        src="{{ first_image | image_url: width: 536 }}"
+        alt="{{ product.title }}"
+        width="536px"
+        height="536px"
+      >
+      <div class="product__gallery-badge">
+        {% comment %}
+          <span class="product__gallery-badge-icon">
+            {% render 'icon-star' %}
+          </span>
+        {% endcomment %}
+        <span class="product__gallery-badge-text">Highly Rated</span>
+      </div>
+    </div>
+  </div>
+  <div class="product__main">
+    <div class="product__main-details">
+      <h2 class="product__main-heading">{{ product.title }}</h2>
+      <p class="product__main-price">{{ current_variant.price | money }}</p>
+    </div>
+    <div
+      class="product__main-variants"
+      role="list"
+      aria-label="Product variants"
+    >
+      {% for image in product.images limit: 3 %}
+        <button
+          class="product__main-variant"
+          role="group"
+        >
+          <img
+            class="product__main-variant-image"
+            src="{{ image | image_url }}"
+            alt="{{product.title}}"
+            width="100%"
+            height="100%"
+          >
+        </button>
+      {% endfor %}
+    </div>
+    <div class="product__main-size" role="list" aria-label="Product sizes">
+      <label class="product__main-size-label">Select Size:</label>
+      <div class="product__main-size-variants">
+        {% for variant in product.variants %}
+          {% if variant.option1 == current_color %}
+            <button
+              class="product__main-size-variant"
+              role="group"
+              {% unless variant.available %}
+                disabled
+              {% endunless %}
+            >
+              UK {{ variant.option2 }}
+            </button>
+            <script></script>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <button class="product__button  product__button--dark">Add To Bag</button>
+    <p class="product__main-description">
+      Let your attitude have the edge in your Nike Air Max Plus, a Tuned Air experience that offers premium stability
+      and unbelievable cushioning.
+    </p>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // --- Image switching ---
+    const mainPreview = document.querySelector('.product__gallery-preview-image');
+    document.querySelectorAll('.product__gallery-item').forEach((thumb) => {
+      thumb.addEventListener('click', function () {
+        document.querySelectorAll('.product__gallery-item').forEach((t) => t.classList.remove('active'));
+        this.classList.add('active');
+        mainPreview.src = this.dataset.full;
+      });
+    });
+  });
+</script>
